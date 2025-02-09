@@ -203,10 +203,10 @@
   show heading.where(level:2): set heading(numbering: "A.1 ", supplement: [Приложение])
   
   // Set the numbering of the figures.
-  set figure(numbering: (x) => locate(loc => {
-    let idx = numbering("A", counter(heading).at(loc).first())
+  set figure(numbering: (x) => context {
+    let idx = numbering("A", counter(heading).at(here()).first())
     [#idx.#numbering("1", x)]
-  }))
+  })
   
   // Additional heading styling to update sub-counters.
   show heading: it => {
