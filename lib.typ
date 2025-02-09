@@ -160,8 +160,6 @@
   v(0em)
   specialty-title // Название специальности
   v(1em)
-  "Диссертация на соискание учёной степени"
-  v(0em)
   degree
   v(5fr)
   set align(right)
