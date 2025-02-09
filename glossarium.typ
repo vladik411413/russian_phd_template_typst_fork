@@ -10,26 +10,23 @@
 #let __query_labels_with_key(loc, key, before: false) = {
   if before {
     query(
-      selector(label(__glossary_label_prefix + key)).before(loc, inclusive: false),
-      loc,
+      selector(label(__glossary_label_prefix + key)).before(loc, inclusive: false)
     )
   } else {
     query(
-      selector(label(__glossary_label_prefix + key)),
-      loc,
+      selector(label(__glossary_label_prefix + key))
     )
   }
 }
 
 // Reference a term
 #let gls(key, long: none, display: none) = {
-  locate(
-    loc => {
-      let __glossary_entries = __glossary_entries.final(loc);
+  context {
+      let __glossary_entries = __glossary_entries.final();
       if key in __glossary_entries {
         let entry = __glossary_entries.at(key)
 
-        let gloss = __query_labels_with_key(loc, key, before: true)
+        let gloss = __query_labels_with_key(here(), key, before: true)
 
         let is_first = gloss == ();
         let entlong = entry.at("long", default: "")
@@ -45,8 +42,7 @@
       } else {
         text(fill: red, "Glossary entry not found: " + key)
       }
-    },
-  )
+    }
 }
 
 // reference to symbol 
@@ -69,9 +65,8 @@
   "где"
   linebreak()
   for key in keys.pos() {
-    locate(
-    loc => {
-      let __glossary_entries = __glossary_entries.final(loc);
+    context {
+      let __glossary_entries = __glossary_entries.final();
       if key in __glossary_entries {
         let entry = __glossary_entries.at(key)
 
@@ -85,8 +80,7 @@
       } else {
         text(fill: red, "Symbol entry not found: " + key)
       }
-    },
-    )
+    }
     
   }
 }
@@ -135,9 +129,8 @@
         kind: __glossarium_figure,
         numbering: none,
         caption: {
-          locate(
-            loc => {
-              let term_references = __query_labels_with_key(loc, entry.key)
+          context {
+              let term_references = __query_labels_with_key(here(), entry.key)
               if term_references.len() != 0 or show-all  {
                 let desc = entry.at("desc", default: "")
                 let long = entry.at("long", default: "")
@@ -176,8 +169,7 @@
                   .join(", ")
                 }
               }
-            },
-          )
+            }
         },
       )[] #label(entry.key)
       ]
