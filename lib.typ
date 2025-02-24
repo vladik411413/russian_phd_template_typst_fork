@@ -1,8 +1,7 @@
 #import "@preview/unify:0.5.0": *
-#import "@preview/codly:0.2.0": *
+#import "@preview/codly:1.2.0": *
 #import "@preview/tablex:0.0.8": *
 #import "@preview/physica:0.9.3": *
-#import "@preview/indenta:0.0.3": fix-indent
 #import "./glossarium.typ": *
 
 // Счетчики  
@@ -70,10 +69,9 @@
   set par(
     justify: true, 
     linebreaks: "optimized",
-    first-line-indent: 2.5em, // Абзацный отступ. Должен быть одинаковым по всему тексту и равен пяти знакам (ГОСТ Р 7.0.11-2011, 5.3.7).
+    first-line-indent: (amount: 2.5em, all: true), // Абзацный отступ. Должен быть одинаковым по всему тексту и равен пяти знакам (ГОСТ Р 7.0.11-2011, 5.3.7).
     leading: 1em, // Полуторный интервал (ГОСТ 7.0.11-2011, 5.3.6)
-  ) 
-    
+  )
   // форматирование заголовков
   set heading(numbering: "1.", outlined: true, supplement: [Раздел])
   show heading: it => {
@@ -186,9 +184,6 @@
 
   body
 }
-
-// Нужно начать первый абзац в разделе с этой функции для отступа первой строки 
-#let ident-par(it) = par[#h(2.5em)#it]
 
 // Set up the styling of the appendix.
 #let phd-appendix(body) = {

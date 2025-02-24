@@ -120,59 +120,58 @@
   for entry in entries.sorted(key: (x) => x.key) {
     [
     #show figure.where(kind: __glossarium_figure): it => it.caption
-    #par(
+    #set par(
       hanging-indent: 1em,
       first-line-indent: 0em,
-    )[
-      #figure(
-        supplement: "",
-        kind: __glossarium_figure,
-        numbering: none,
-        caption: {
-          context {
-              let term_references = __query_labels_with_key(here(), entry.key)
-              if term_references.len() != 0 or show-all  {
-                let desc = entry.at("desc", default: "")
-                let long = entry.at("long", default: "")
-                let hasLong = long != "" and long != []
-                let hasDesc = desc != "" and desc != []
+    )
+    #figure(
+      supplement: "",
+      kind: __glossarium_figure,
+      numbering: none,
+      caption: {
+        context {
+            let term_references = __query_labels_with_key(here(), entry.key)
+            if term_references.len() != 0 or show-all  {
+              let desc = entry.at("desc", default: "")
+              let long = entry.at("long", default: "")
+              let hasLong = long != "" and long != []
+              let hasDesc = desc != "" and desc != []
 
-                {
-                  set text(weight: 600)
-                  if hasLong {
-                    emph(entry.short) + [ -- ] + entry.long
-                  }
-                  else {
-                    emph(entry.short)
-                  }
+              {
+                set text(weight: 600)
+                if hasLong {
+                  emph(entry.short) + [ -- ] + entry.long
                 }
-                if hasDesc [: #desc ] else [. ]
-                if disable-back-references  != true { 
-                  term_references.map((x) => x.location())
-                  .sorted(key: (x) => x.page())
-                  .fold(
-                    (values: (), pages: ()),
-                    ((values, pages), x) => if pages.contains(x.page()) {
-                      (values: values, pages: pages)
-                    } else {
-                      values.push(x)
-                      pages.push(x.page())
-                      (values: values, pages: pages)
-                    },
-                  )
-                  .values
-                  .map(
-                    (x) => link(
-                      x,
-                    )[#numbering(x.page-numbering(), ..counter(page).at(x))],
-                  )
-                  .join(", ")
+                else {
+                  emph(entry.short)
                 }
               }
+              if hasDesc [: #desc ] else [. ]
+              if disable-back-references  != true { 
+                term_references.map((x) => x.location())
+                .sorted(key: (x) => x.page())
+                .fold(
+                  (values: (), pages: ()),
+                  ((values, pages), x) => if pages.contains(x.page()) {
+                    (values: values, pages: pages)
+                  } else {
+                    values.push(x)
+                    pages.push(x.page())
+                    (values: values, pages: pages)
+                  },
+                )
+                .values
+                .map(
+                  (x) => link(
+                    x,
+                  )[#numbering(x.page-numbering(), ..counter(page).at(x))],
+                )
+                .join(", ")
+              }
             }
-        },
-      )[] #label(entry.key)
-      ]
+          }
+      },
+    )[] #label(entry.key)
     #parbreak()
     ]
   }
