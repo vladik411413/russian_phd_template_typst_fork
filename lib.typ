@@ -70,7 +70,7 @@
     justify: true, 
     linebreaks: "optimized",
     first-line-indent: (amount: 2.5em, all: true), // Абзацный отступ. Должен быть одинаковым по всему тексту и равен пяти знакам (ГОСТ Р 7.0.11-2011, 5.3.7).
-    leading: 1em, // Полуторный интервал (ГОСТ 7.0.11-2011, 5.3.6)
+    leading: 1.5em, // Полуторный интервал (ГОСТ 7.0.11-2011, 5.3.6)
   )
   // форматирование заголовков
   set heading(numbering: "1.", outlined: true, supplement: [Раздел])
@@ -114,7 +114,11 @@
   set math.equation(numbering: num => 
     ("("+(counter(heading.where(level:1)).get() + (num,)).map(str).join(".")+")"),
     supplement: [Уравнение],)
-  
+
+  // Размер шрифта и интервал для математики
+  show math.equation: set text(16pt)
+  set math.cases(gap: 1.5em)
+
   // Настройка рисунков 
   show figure: align.with(center)
   set figure(supplement: [Рисунок])
