@@ -199,14 +199,15 @@
   show heading.where(level:1): set heading(numbering: "Приложение A. ", supplement: [Приложение])
   show heading.where(level:2): set heading(numbering: "A.1 ", supplement: [Приложение])
   
-  // Set the numbering of the figures.
-  set figure(numbering: (x) => context {
-    let idx = numbering("A", counter(heading).at(here()).first())
-    [#idx.#numbering("1", x)]
-  })
-  
+  // Set the numbering of the figures.  
+  set figure(
+    numbering: num => (
+    str(numbering("A",counter(heading.where(level:1, numbering: "Приложение A. ")).get().first())) + "." + str(num)
+    )
+  )
+
   // Additional heading styling to update sub-counters.
-  show heading: it => {
+  show heading.where(level: 1): it => {
     appendix_count.step() // Обновление счетчика приложений
     counter(figure.where(kind: table)).update(0)
     counter(figure.where(kind: image)).update(0)
@@ -215,7 +216,7 @@
     
     it
   }
-  
+
   // Set that we're in the annex
   state("section").update("annex")
   
