@@ -69,26 +69,36 @@
   set par(
     justify: true, 
     linebreaks: "optimized",
-    first-line-indent: (amount: 2.5em, all: true), // Абзацный отступ. Должен быть одинаковым по всему тексту и равен пяти знакам (ГОСТ Р 7.0.11-2011, 5.3.7).
-    leading: 1.5em, // Полуторный интервал (ГОСТ 7.0.11-2011, 5.3.6)
+    first-line-indent: (amount: 1.25cm, all: true), // Абзацный отступ. Должен быть одинаковым по всему тексту и равен 1.25 cm ГОСТ 7.32—2017
+    leading: 1.5em, // Полуторный интервал ГОСТ 7.32—2017
   )
   // форматирование заголовков
   set heading(numbering: "1.", outlined: true, supplement: [Раздел])
   show heading: it => {
-    set align(center)
     set text(
       font: font-type, 
-      size: font-size,)
-    set block(above:3em,below:3em) // Заголовки отделяют от текста сверху и снизу тремя интервалами (ГОСТ Р 7.0.11-2011, 5.3.5)
+      size: font-size,
+      weight: "regular"
+    )
+    set block(above:1.5em,below:1.5em) // Заголовки отделяют от текста сверху и снизу интервалом 1.5 
     
     if it.level == 1 {
       pagebreak() // новая страница для разделов 1 уровня 
       counter(figure).update(0) // сброс значения счетчика рисунков 
       counter(math.equation).update(0) // сброс значения счетчика уравнений 
       }
+    if(it.numbering==none){
+      set align(center)
+      set text(weight: "regular")
+      it
+    }
       else{
+      set align(left)
+      set text(weight: "bold")
+      pad(left: 1.25cm, it)
       }
-    it
+    
+    
   }
 
   // Отображение ссылок на figure (рисунки и таблицы) - ничего не отображать
@@ -131,9 +141,9 @@
   show figure.where(kind:table): set figure(supplement: [Таблица])
   show figure.where(kind:table): set figure(numbering: num => 
     ((counter(heading.where(level:1)).get() + (num,)).map(str).join(".")),)
+  show figure.caption.where(kind: table): it => align(left, it)
   // Разбивать таблицы по страницам 
   show figure: set block(breakable: true)
-  
   // Настройка списков 
   set enum(indent: 2.5em)
 
@@ -178,13 +188,13 @@
 
   set page(
     numbering: "1", // Установка сквозной нумерации страниц 
-    number-align:center+top, // Нумерация страниц сверху, по центру 
+    number-align:center+bottom, // Нумерация страниц снизу, по центру 
   )
   counter(page).update(1)
   
   // Содержание 
   // #align(right)[Стр.]
-  outline(title: "Содержание", indent: 1.5em, depth: 3,)
+  outline(title: "СОДЕРЖАНИЕ", indent: 1.5em, depth: 3,)
 
   body
 }
@@ -195,14 +205,41 @@
   // Reset the title numbering.
   counter(heading).update(0)
   
+  let alphabet = ("NONE","А","Б","В","Г","Д","E","Ж","И","К","Л","М","Н","П","Р","С","Т","У","Ф","Х","Ц","Щ","Э","Ю","Я")
+
+  let appendix_numbering_1(number) = {
+    [ПРИЛОЖЕНИЕ ]
+    alphabet.at(number,default: [*Ошибка Нумерации*])
+    [.]
+  }
+
+  let appendix_numbering_2(number1,number2) = {
+    alphabet.at(number1,default: [*Ошибка Нумерации*])
+    [.#number2]
+  }
+
   // Number headings using letters.
-  show heading.where(level:1): set heading(numbering: "Приложение A. ", supplement: [Приложение])
-  show heading.where(level:2): set heading(numbering: "A.1 ", supplement: [Приложение])
+  show heading.where(level:1): set heading(numbering: appendix_numbering_1, supplement: [Приложение])
+  show heading.where(level:2): set heading(numbering: appendix_numbering_2, supplement: [Приложение])
   
+  let get_appendix_letter() = {
+    str(
+      numbering(
+        it => {alphabet.at(it)},
+        counter(
+          heading.where(
+            level:1, 
+            numbering: appendix_numbering_1
+          )
+        ).get().first()
+      )
+    )
+  }
+
   // Set the numbering of the figures.  
   set figure(
     numbering: num => (
-    str(numbering("A",counter(heading.where(level:1, numbering: "Приложение A. ")).get().first())) + "." + str(num)
+    get_appendix_letter() + "." + str(num)
     )
   )
 
@@ -213,9 +250,21 @@
     counter(figure.where(kind: image)).update(0)
     counter(figure.where(kind: math.equation)).update(0)
     counter(figure.where(kind: raw)).update(0)
-    
-    it
+
+    pagebreak()
+    set align(center)
+    set text(
+      font: "Times New Roman", 
+      size: 14pt,
+      weight: "bold"
+    )
+
+    [ПРИЛОЖЕНИЕ ]
+    get_appendix_letter()
+    linebreak()
+    it.body
   }
+
 
   // Set that we're in the annex
   state("section").update("annex")

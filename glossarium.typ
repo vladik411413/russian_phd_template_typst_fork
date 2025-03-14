@@ -99,6 +99,8 @@
 }
 
 #let print-glossary(entries, show-all: false, disable-back-references: false) = {
+  set heading(numbering: none)
+  [= ОБОЗНАЧЕНИЯ И СОКРАЩЕНИЯ]
   __glossary_entries.update(
     (x) => {
       for entry in entries {
@@ -118,61 +120,70 @@
   )
 
   for entry in entries.sorted(key: (x) => x.key) {
-    [
-    #show figure.where(kind: __glossarium_figure): it => it.caption
-    #set par(
+    set par(
       hanging-indent: 1em,
       first-line-indent: 0em,
     )
+
+    show figure.where(kind: __glossarium_figure): it => it.caption
+    show figure.where(kind: __glossarium_figure):set align(left)
+
+    let figure_caption = {
+      context{
+      let term_references = __query_labels_with_key(here(), entry.key)
+      if term_references.len() != 0 or show-all  {
+        let desc = entry.at("desc", default: "")
+        let long = entry.at("long", default: "")
+        let hasLong = long != "" and long != []
+        let hasDesc = desc != "" and desc != []
+
+        {
+          set text(weight: "regular")
+          if hasLong {
+            emph(entry.short) + [ -- ] + entry.long
+          }
+          else {
+            emph(entry.short)
+          }
+        }
+        if hasDesc [: #desc ] else [. ]
+        if disable-back-references  != true { 
+          term_references.map((x) => x.location())
+          .sorted(key: (x) => x.page())
+          .fold(
+            (values: (), pages: ()),
+            ((values, pages), x) => if pages.contains(x.page()) {
+              (values: values, pages: pages)
+            } else {
+              values.push(x)
+              pages.push(x.page())
+              (values: values, pages: pages)
+            },
+          )
+          .values
+          .map(
+            (x) => link(
+              x,
+            )[#numbering(x.page-numbering(), ..counter(page).at(x))],
+          )
+          .join(", ")
+        }
+      }
+      else{
+        entry.at("desc", default: "")
+        [*Не найдено ссылок*]
+      }
+      }
+    }
+
+    [
     #figure(
       supplement: "",
       kind: __glossarium_figure,
       numbering: none,
-      caption: {
-        context {
-            let term_references = __query_labels_with_key(here(), entry.key)
-            if term_references.len() != 0 or show-all  {
-              let desc = entry.at("desc", default: "")
-              let long = entry.at("long", default: "")
-              let hasLong = long != "" and long != []
-              let hasDesc = desc != "" and desc != []
-
-              {
-                set text(weight: 600)
-                if hasLong {
-                  emph(entry.short) + [ -- ] + entry.long
-                }
-                else {
-                  emph(entry.short)
-                }
-              }
-              if hasDesc [: #desc ] else [. ]
-              if disable-back-references  != true { 
-                term_references.map((x) => x.location())
-                .sorted(key: (x) => x.page())
-                .fold(
-                  (values: (), pages: ()),
-                  ((values, pages), x) => if pages.contains(x.page()) {
-                    (values: values, pages: pages)
-                  } else {
-                    values.push(x)
-                    pages.push(x.page())
-                    (values: values, pages: pages)
-                  },
-                )
-                .values
-                .map(
-                  (x) => link(
-                    x,
-                  )[#numbering(x.page-numbering(), ..counter(page).at(x))],
-                )
-                .join(", ")
-              }
-            }
-          }
-      },
-    )[] #label(entry.key)
-    #parbreak()
+      caption: figure_caption,
+    )[] 
+    #label(entry.key)
     ]
   }
 };
