@@ -37,7 +37,7 @@
   supervisor-regalia-short: "уч. ст., уч. зв.",
   font-type: "Times New Roman",
   font-size: 14pt,
-  link-color: blue.darken(60%),
+  link-color: black,
   languages: (), 
   logo: "",
   body,
